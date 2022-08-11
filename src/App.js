@@ -2,10 +2,11 @@ import {Box ,Text,Container,Input, Button , HStack , VStack } from '@chakra-ui/r
 import Message from './Components/Message';
 import {app} from './firebase';
 import { useState , useEffect  , useRef} from 'react';
-import {signOut ,onAuthStateChanged ,signInWithPopup , getAuth , GoogleAuthProvider,createUserWithEmailAndPassword ,signInWithEmailAndPassword } from 'firebase/auth';
+import {signOut ,onAuthStateChanged ,signInWithPopup , getAuth , GoogleAuthProvider,signInWithEmailAndPassword } from 'firebase/auth';
 import {query, orderBy,onSnapshot,addDoc, collection, getFirestore, serverTimestamp} from 'firebase/firestore';
 import AdminArea from './Components/AdminArea';
-import {} from 'react-dom';
+// import {} from 'react-dom';
+
 
 
 const db = getFirestore(app);
