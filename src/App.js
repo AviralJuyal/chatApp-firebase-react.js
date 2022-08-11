@@ -1,13 +1,17 @@
-import {Box ,Container,Input, Button , HStack , VStack } from '@chakra-ui/react';
+import {Box ,Text,Container,Input, Button , HStack , VStack } from '@chakra-ui/react';
 import Message from './Components/Message';
 import {app} from './firebase';
 import { useState , useEffect  , useRef} from 'react';
-import {signOut ,onAuthStateChanged ,signInWithPopup , getAuth , GoogleAuthProvider } from 'firebase/auth';
+import {signOut ,onAuthStateChanged ,signInWithPopup , getAuth , GoogleAuthProvider,createUserWithEmailAndPassword ,signInWithEmailAndPassword } from 'firebase/auth';
 import {query, orderBy,onSnapshot,addDoc, collection, getFirestore, serverTimestamp} from 'firebase/firestore';
+import AdminArea from './Components/AdminArea';
+import {} from 'react-dom';
 
 
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+
 
 const logoutHandler = ()=>{
   signOut(auth);
@@ -24,6 +28,50 @@ function App() {
   const [user, setuser] = useState(false);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [wrong, setWrong] = useState(false);
+  const [admin , setAdmin] = useState(false);
+  const adminUID = 'GT6QYItg6UUuaj9z7MN0kbZ2Vjw1';
+ 
+//   const createuser = (e)=>{
+//     e.preventDefault()
+//     createUserWithEmailAndPassword(auth, email, password)
+//   .then((userCredential) => {
+//     // Signed in 
+//     const u = userCredential.user;
+//     console.log(userCredential)
+//     // ...
+//   })
+//   .catch((error) => {
+//     // alert(error)
+//     // ..
+//     console.log(error)
+//   });
+
+// }
+
+
+ const loginUser = (e)=>{
+  e.preventDefault();
+  signInWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    // Signed in 
+    const u = userCredential.user;
+    console.log(u.uid)
+    if(u.uid === adminUID)
+      setAdmin(true); 
+    else
+      setAdmin(false)
+
+  })
+  .catch((error) => {
+    setWrong(true);
+    // console.log(error);
+  });
+ }
+
+
 
   const divForScroll = useRef(null)
 
@@ -66,8 +114,10 @@ function App() {
   
 
   return (
-
-    <Box bg={'red.50'}>
+    <>
+    {admin && <AdminArea logoutHandler={logoutHandler}/> 
+      }
+    {!admin &&<Box bg={'red.50'}>
     {
       user?(
         <Container h={"100vh"} bg={'white'} >
@@ -97,11 +147,34 @@ function App() {
           </form>
         </VStack>
     </Container>
-      ):<VStack justifyContent={'center'} h={'100vh'}>
-          <Button colorScheme={'purple'} onClick={loginHandler}>Sign in with google</Button>
+      ):(
+        <Container>
+
+        <VStack justifyContent={'center'} h={'100vh'} bg={'cyan.50'}>
+          <Text marginBottom={'32'} fontSize={'38'} fontWeight={'bold'}>Welcome to my chat-app</Text>
+          <form onSubmit={loginUser}>
+            
+        <VStack>
+
+          <Input placeholder='Enter your email address' onChange={(e)=>setEmail(e.target.value)}></Input>
+          <Input placeholder='Enter your password' onChange={(e)=>setPassword(e.target.value)}></Input>
+          <Button colorScheme={'purple'} type="submit">Login</Button>
+          {wrong && <Text color={'red'}>Wrong email / password !!</Text>}
         </VStack>
+          </form>
+          <Text>OR</Text>
+          <Button colorScheme={'purple'} style={{marginBottom: '30px'}} onClick={loginHandler}>Sign in with google</Button>
+          {/* <Text>Already have an account ?</Text> */}
+          
+
+        </VStack>
+        </Container>
+        )
     }
-  </Box>
+  </Box>}
+
+  </>
+
      );
 }
 
