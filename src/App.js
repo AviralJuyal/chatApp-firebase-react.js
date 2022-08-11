@@ -4,8 +4,15 @@ import {app} from './firebase';
 import { useState , useEffect  , useRef} from 'react';
 import {signOut ,onAuthStateChanged ,signInWithPopup , getAuth , GoogleAuthProvider,signInWithEmailAndPassword } from 'firebase/auth';
 import {query, orderBy,onSnapshot,addDoc, collection, getFirestore, serverTimestamp} from 'firebase/firestore';
-import AdminArea from './Components/AdminArea';
-// import {} from 'react-dom';
+// import AdminArea from './Components/AdminArea';
+import Create from './Components/Create';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+
+} from 'react-router-dom';
 
 
 
@@ -32,38 +39,20 @@ function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [wrong, setWrong] = useState(false);
-  const [admin , setAdmin] = useState(false);
+  // const [admin , setAdmin] = useState(false);
   const adminUID = 'GT6QYItg6UUuaj9z7MN0kbZ2Vjw1';
- 
-//   const createuser = (e)=>{
-//     e.preventDefault()
-//     createUserWithEmailAndPassword(auth, email, password)
-//   .then((userCredential) => {
-//     // Signed in 
-//     const u = userCredential.user;
-//     console.log(userCredential)
-//     // ...
-//   })
-//   .catch((error) => {
-//     // alert(error)
-//     // ..
-//     console.log(error)
-//   });
-
-// }
-
 
  const loginUser = (e)=>{
   e.preventDefault();
   signInWithEmailAndPassword(auth, email, password)
   .then((userCredential) => {
     // Signed in 
-    const u = userCredential.user;
-    console.log(u.uid)
-    if(u.uid === adminUID)
-      setAdmin(true); 
-    else
-      setAdmin(false)
+    // const u = userCredential.user;
+    // console.log(u.uid)
+    // if(u.uid === adminUID)
+      // setAdmin(true); 
+    // else
+      // setAdmin(false)
 
   })
   .catch((error) => {
@@ -116,39 +105,23 @@ function App() {
 
   return (
     <>
-    {admin && <AdminArea logoutHandler={logoutHandler}/> 
-      }
-    {!admin &&<Box bg={'red.50'}>
+    <Router>
+      <Routes>
+          <Route exact path='/create' element={< Create  />}></Route>
+          {/* <Route exact path='/' element={<App/>} ></Route> */}
+          {/* <Route exact path='/admin' element={< AdminArea auth = {auth} />}></Route> */}
+      </Routes>
+
+    {/* {admin && (
+      <>
+      <p>Hello</p>
+      <Button onClick={logoutHandler}>Logout</Button>
+      </>
+    )
+      } */}
+    <Box bg={'red.50'}>
     {
-      user?(
-        <Container h={"100vh"} bg={'white'} >
-      <VStack h={'full'} paddingY={"4"}>
-        <Button onClick={logoutHandler} colorScheme={"red"} w={'full'}>Logout</Button>
-
-        <VStack  h={'full'} w={'full'} overflowY={'auto'} css={{"&::-webkit-scrollbar":{
-          display: 'none'
-        }}}>
-          { messages.map((item) =>(
-              <Message
-               key={item.id}
-               user={item.uid === user.uid?'me':'other'}
-               uri = {item.uri}
-                msg={item.text}
-                />
-
-            ))}
-          <div ref={divForScroll}></div>
-      </VStack>
-
-          <form onSubmit={submitHandler} style={{width:'100%'}}>
-          <HStack>
-            <Input value={message} onChange={(e)=> setMessage(e.target.value)} placeholder='Enter a message'/>
-            <Button type='submit' colorScheme={'purple'}>Send</Button>
-          </HStack>
-          </form>
-        </VStack>
-    </Container>
-      ):(
+      !user?(
         <Container>
 
         <VStack justifyContent={'center'} h={'100vh'} bg={'cyan.50'}>
@@ -165,14 +138,55 @@ function App() {
           </form>
           <Text>OR</Text>
           <Button colorScheme={'purple'} style={{marginBottom: '30px'}} onClick={loginHandler}>Sign in with google</Button>
-          {/* <Text>Already have an account ?</Text> */}
+          <Text>Don't have an account ?</Text>
+          <Link style={{color:'gray' }} to="/create">Create new account !!</Link>
           
 
         </VStack>
         </Container>
+
+      ):user.uid !== adminUID?(
+       
+<Container h={"100vh"} bg={'white'} >
+<VStack h={'full'} paddingY={"4"}>
+  <Button onClick={logoutHandler} colorScheme={"red"} w={'full'}>Logout</Button>
+
+  <VStack  h={'full'} w={'full'} overflowY={'auto'} css={{"&::-webkit-scrollbar":{
+    display: 'none'
+  }}}>
+    { messages.map((item) =>(
+        <Message
+         key={item.id}
+         user={item.uid === user.uid?'me':'other'}
+         uri = {item.uri}
+          msg={item.text}
+          />
+
+      ))}
+    <div ref={divForScroll}></div>
+</VStack>
+
+    <form onSubmit={submitHandler} style={{width:'100%'}}>
+    <HStack>
+      <Input value={message} onChange={(e)=> setMessage(e.target.value)} placeholder='Enter a message'/>
+      <Button type='submit' colorScheme={'purple'}>Send</Button>
+    </HStack>
+    </form>
+  </VStack>
+</Container>
+        ):(
+          <Container h={"100vh"} bg={'white'} >
+<VStack h={'full'} paddingY={"4"}>
+  <Button onClick={logoutHandler} colorScheme={"red"} w={'full'}>Logout</Button>
+  <Text>Welcome admin</Text>
+  </VStack>
+</Container>
         )
     }
-  </Box>}
+  </Box>
+
+  </Router>
+
 
   </>
 
